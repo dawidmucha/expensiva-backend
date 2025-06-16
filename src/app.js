@@ -33,4 +33,28 @@ app.get('/status', async (req, res) => {
   })
 })
 
+app.get('/user', async (req, res) => {
+  let results, fields
+
+  try {
+    [results, fields] = await connection.query(`select * from user where user_id_auth0 like "${req.query.id}"`)
+  } catch(err) {
+    console.log(err)
+  }
+
+  res.send({ results })
+})
+
+app.post('/user', async (req, res) => {
+  let results, fields
+
+  try {
+    [results, fields] = await connection.query(`insert into user (user_id_auth0) values ("${req.query.id}")`)
+  } catch(err) {
+    console.log(err)
+  }
+
+  res.send({ results })
+})
+
 app.listen(process.env.PORT || 8081)
