@@ -57,4 +57,18 @@ app.post('/user', async (req, res) => {
   res.send({ results })
 })
 
+app.post('/receipt', async (req, res) => {
+  let results, fields
+
+  try {
+    [results, fields] = await connection.query(`insert into receipt (user_id) values ((
+      select id from user where user_id_auth0 = "${req.body.userId}" 
+    ))`)
+  } catch (err) {
+    console.log(err)
+  }
+
+  res.send({ results })
+})
+
 app.listen(process.env.PORT || 8081)
