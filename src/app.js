@@ -57,6 +57,20 @@ app.post('/user', async (req, res) => {
   res.send({ results })
 })
 
+app.put('/receipt', async (req, res) => {
+  let results, fields
+
+  try {
+    [results, fields] = await connection.query(`select * from receipt where user_id = (
+        select id from user where user_id_auth0 = "${req.body.userId}"
+      )`)
+  } catch(err) {
+    console.log(err)
+  }
+
+  res.send({ results })
+})
+
 app.post('/receipt', async (req, res) => {
   let results, fields
 
