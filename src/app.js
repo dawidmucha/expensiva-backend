@@ -33,6 +33,7 @@ app.get('/status', async (req, res) => {
   })
 })
 
+// GET USERS
 app.get('/user', async (req, res) => {
   let results, fields
 
@@ -45,6 +46,7 @@ app.get('/user', async (req, res) => {
   res.send({ results })
 })
 
+// ADD NEW USER
 app.post('/user', async (req, res) => {
   let results, fields
 
@@ -57,6 +59,7 @@ app.post('/user', async (req, res) => {
   res.send({ results })
 })
 
+// GET ALL USER'S RECEIPTS
 app.put('/receipt', async (req, res) => {
   let results, fields
 
@@ -71,18 +74,38 @@ app.put('/receipt', async (req, res) => {
   res.send({ results })
 })
 
+// ADD A NEW RECEIPT
 app.post('/receipt', async (req, res) => {
   let results, fields
 
   try {
-    [results, fields] = await connection.query(`insert into receipt (user_id) values ((
+    [results, fields] = await connection.query(`insert into receipt (user_id) values (
       select id from user where user_id_auth0 = "${req.body.userId}" 
-    ))`)
+    )`)
   } catch (err) {
     console.log(err)
   }
 
   res.send({ results })
 })
+
+// REMOVE A RECEIPT
+app.delete('/receipt', async (req, res) => {
+  let results, fields
+
+  console.log('req', req.body)
+  console.log("user_id", req.body.userId, "id", req.body.receiptId)
+
+  try {
+    [results, fields] = await connection.query(`delete from receipt where user_id = (
+        select id from user where user_id_auth0 = "${req.body.userId}") and id = "${req.body.receiptId}"
+    `)
+  } catch (err) {
+   console.log(err)
+  }
+
+  res.send({ results })
+})
+
 
 app.listen(process.env.PORT || 8081)
