@@ -80,8 +80,21 @@ app.post('/receipt', async (req, res) => {
 
   try {
     [results, fields] = await connection.query(`insert into receipt (user_id) values (
-      select id from user where user_id_auth0 = "${req.body.userId}" 
+      (select id from user where user_id_auth0 = "${req.body.userId}")
     )`)
+  } catch (err) {
+    console.log(err)
+  }
+
+  res.send({ results })
+})
+
+// EDIT RECEIPT
+app.patch('/receipt', async (req, res) => {
+  let results, fields
+
+  try {
+    [results, fields] = await connection.query(`update receipt set shop_id=${req.body.shopId} where id="${req.body.receiptId}"`)
   } catch (err) {
     console.log(err)
   }
@@ -107,5 +120,33 @@ app.delete('/receipt', async (req, res) => {
   res.send({ results })
 })
 
+// GET USER'S SHOPS
+app.put('/shops', async (req, res) => {
+  let results
+  console.log('looking for', req.body.userId)
+
+  try {
+    let uid = await connection.query(`
+      SELECT id 
+      FROM user 
+      WHERE user_id_auth0 = "${req.body.userId}"
+    `)
+
+    // console.log('uid is', uid[0][0].id)
+
+    results = await connection.query(`
+      SELECT shop_id, name, logo 
+      FROM shoplist 
+      INNER JOIN shop 
+      ON shoplist.shop_id = shop.id 
+      WHERE user_id = 20
+    `)
+
+  } catch (err) {
+    console.log(err)
+  }
+  
+  res.send({ results })
+})
 
 app.listen(process.env.PORT || 8081)
