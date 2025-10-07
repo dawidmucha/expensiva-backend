@@ -64,8 +64,12 @@ app.put('/receipt', async (req, res) => {
   let results, fields
 
   try {
-    [results, fields] = await connection.query(`select * from receipt where user_id = (
-        select id from user where user_id_auth0 = "${req.body.userId}"
+    [results, fields] = await connection.query(`
+      SELECT receipt.id, receipt.created_at, receipt.date, shop.name, shop.logo 
+      FROM receipt 
+      INNER JOIN shop ON receipt.shop_id = shop.id 
+      WHERE user_id = (
+        SELECT id FROM user WHERE user_id_auth0 = "${req.body.userId}"
       )`)
   } catch(err) {
     console.log(err)
@@ -146,6 +150,23 @@ app.put('/shops', async (req, res) => {
     console.log(err)
   }
   
+  res.send({ results })
+})
+
+// GET SHOP
+app.put('/shop', async (req, res) => {
+  let results
+
+  try {
+    results = await connection.query(`
+      SELECT id, name, logo
+      FROM shop
+      WHERE id = ${req.body.shopId}
+    `)
+  } catch (err) {
+    console.log(err)
+  }
+
   res.send({ results })
 })
 
